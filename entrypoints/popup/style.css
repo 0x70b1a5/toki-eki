@@ -391,3 +391,9 @@ body {
 .footer a:hover {
   color: var(--accent);
 }
+
+/* ── Utility ── */
+
+.hidden {
+  display: none !important;
+}

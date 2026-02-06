@@ -1,20 +1,25 @@
 import { onMessage } from "../utils/messaging";
 import {
-  apiKey,
+  selectedProvider,
   customSystemPrompt,
-  selectedModel,
   targetLanguage,
   tokensIn,
   tokensOut,
+  ollamaUrl,
+  getActiveKey,
+  getActiveModel,
+  migrateIfNeeded,
 } from "../utils/storage";
 import {
-  translateWithClaude,
-  generateSystemPrompt,
-  isClaudeError,
-} from "../utils/claude-api";
+  translate,
+  generatePrompt,
+  isApiError,
+} from "../utils/providers";
 import { MAX_CONCURRENT_REQUESTS, TRANSLATION_PROMPT } from "../utils/constants";
 
 export default defineBackground(() => {
+  migrateIfNeeded();
+
   let activeRequests = 0;
   const queue: Array<{
     text: string;
@@ -43,18 +48,15 @@ export default defineBackground(() => {
   async function executeTranslation(
     text: string
   ): Promise<{ translation: string } | { error: string }> {
-    const key = await apiKey.getValue();
-    if (!key) {
-      return {
-        error: "No API key configured. Open the toki eki popup to set one.",
-      };
-    }
-
-    const model = await selectedModel.getValue();
+    const provider = await selectedProvider.getValue();
+    const key = await getActiveKey();
+    const model = await getActiveModel();
     const prompt = await getSystemPrompt();
-    const result = await translateWithClaude(text, key, model, prompt);
+    const ollama = await ollamaUrl.getValue();
 
-    if (isClaudeError(result)) {
+    const result = await translate(provider, text, key, model, prompt, ollama);
+
+    if (isApiError(result)) {
       return { error: result.error };
     }
 
@@ -87,15 +89,14 @@ export default defineBackground(() => {
       return { autonym: "toki pona" };
     }
 
-    const key = await apiKey.getValue();
-    if (!key) {
-      return { error: "No API key configured" };
-    }
+    const provider = await selectedProvider.getValue();
+    const key = await getActiveKey();
+    const model = await getActiveModel();
+    const ollama = await ollamaUrl.getValue();
 
-    const model = await selectedModel.getValue();
-    const result = await generateSystemPrompt(lang, key, model);
+    const result = await generatePrompt(provider, lang, key, model, ollama);
 
-    if ("error" in result) {
+    if (isApiError(result)) {
       return { error: result.error };
     }
 

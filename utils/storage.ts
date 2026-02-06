@@ -1,14 +1,28 @@
 import { storage } from "wxt/storage";
-import { DEFAULT_MODEL } from "./constants";
+import type { ProviderId } from "./providers";
+import { DEFAULT_PROVIDER, DEFAULT_MODELS } from "./constants";
 
-/** Claude API key */
-export const apiKey = storage.defineItem<string>("local:apiKey", {
-  fallback: "",
-});
+/** Selected provider */
+export const selectedProvider = storage.defineItem<ProviderId>(
+  "local:selectedProvider",
+  { fallback: DEFAULT_PROVIDER }
+);
 
-/** Selected Claude model */
-export const selectedModel = storage.defineItem<string>("local:selectedModel", {
-  fallback: DEFAULT_MODEL,
+/** API keys keyed by provider id */
+export const providerKeys = storage.defineItem<Record<string, string>>(
+  "local:providerKeys",
+  { fallback: {} }
+);
+
+/** Selected model keyed by provider id */
+export const providerModels = storage.defineItem<Record<string, string>>(
+  "local:providerModels",
+  { fallback: {} }
+);
+
+/** Ollama server URL */
+export const ollamaUrl = storage.defineItem<string>("local:ollamaUrl", {
+  fallback: "http://localhost:11434",
 });
 
 /** Whether the extension is enabled */
@@ -32,8 +46,49 @@ export const targetLanguage = storage.defineItem<string>(
   { fallback: "toki pona" }
 );
 
-/** Claude-generated system prompt for the current target language (empty = use built-in Toki Pona prompt) */
+/** Generated system prompt for the current target language (empty = use built-in Toki Pona prompt) */
 export const customSystemPrompt = storage.defineItem<string>(
   "local:customSystemPrompt",
   { fallback: "" }
 );
+
+// ── Migration: move legacy `apiKey` / `selectedModel` into new per-provider stores ──
+
+const legacyApiKey = storage.defineItem<string>("local:apiKey", {
+  fallback: "",
+});
+const legacyModel = storage.defineItem<string>("local:selectedModel", {
+  fallback: "",
+});
+
+export async function migrateIfNeeded(): Promise<void> {
+  const keys = await providerKeys.getValue();
+  if (keys.claude) return; // already migrated
+
+  const oldKey = await legacyApiKey.getValue();
+  const oldModel = await legacyModel.getValue();
+
+  if (oldKey) {
+    await providerKeys.setValue({ ...keys, claude: oldKey });
+    await legacyApiKey.setValue("");
+  }
+  if (oldModel) {
+    const models = await providerModels.getValue();
+    await providerModels.setValue({ ...models, claude: oldModel });
+    await legacyModel.setValue("");
+  }
+}
+
+// ── Convenience helpers ──
+
+export async function getActiveKey(): Promise<string> {
+  const provider = await selectedProvider.getValue();
+  const keys = await providerKeys.getValue();
+  return keys[provider] ?? "";
+}
+
+export async function getActiveModel(): Promise<string> {
+  const provider = await selectedProvider.getValue();
+  const models = await providerModels.getValue();
+  return models[provider] ?? DEFAULT_MODELS[provider] ?? "";
+}

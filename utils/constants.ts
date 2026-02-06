@@ -1,3 +1,5 @@
+import type { ProviderId } from "./providers";
+
 /** Selector for tweet text elements on X/Twitter */
 export const TWEET_TEXT_SELECTOR = '[data-testid="tweetText"]';
 
@@ -17,24 +19,85 @@ export const OBSERVER_DEBOUNCE_MS = 300;
 /** Timeout (ms) waiting for "Show more" expansion to complete */
 export const SHOW_MORE_TIMEOUT_MS = 3_000;
 
-/** Max concurrent Claude API requests from background script */
+/** Max concurrent API requests from background script */
 export const MAX_CONCURRENT_REQUESTS = 3;
 
-/** Available Claude models (id → display label) */
-export const CLAUDE_MODELS: ReadonlyArray<{
-  id: string;
+/** Provider definition */
+export interface ProviderDef {
+  id: ProviderId;
   label: string;
-}> = [
-  { id: "claude-haiku-4-5-20251001", label: "Haiku 4.5 — fastest, cheapest" },
-  { id: "claude-sonnet-4-5-20250929", label: "Sonnet 4.5 — balanced" },
-  { id: "claude-opus-4-6", label: "Opus 4.6 — most capable" },
-  { id: "claude-sonnet-4-20250514", label: "Sonnet 4" },
-  { id: "claude-opus-4-5-20251101", label: "Opus 4.5" },
-  { id: "claude-3-haiku-20240307", label: "Haiku 3 — legacy, cheapest" },
+  keyPlaceholder: string;
+  needsKey: boolean;
+  models: ReadonlyArray<{ id: string; label: string }>;
+}
+
+/** All supported providers */
+export const PROVIDERS: ReadonlyArray<ProviderDef> = [
+  {
+    id: "claude",
+    label: "Claude (Anthropic)",
+    keyPlaceholder: "sk-ant-...",
+    needsKey: true,
+    models: [
+      { id: "claude-haiku-4-5-20251001", label: "Haiku 4.5 — fastest, cheapest" },
+      { id: "claude-sonnet-4-5-20250929", label: "Sonnet 4.5 — balanced" },
+      { id: "claude-opus-4-6", label: "Opus 4.6 — most capable" },
+      { id: "claude-sonnet-4-20250514", label: "Sonnet 4" },
+      { id: "claude-opus-4-5-20251101", label: "Opus 4.5" },
+      { id: "claude-3-haiku-20240307", label: "Haiku 3 — legacy, cheapest" },
+    ],
+  },
+  {
+    id: "openai",
+    label: "ChatGPT (OpenAI)",
+    keyPlaceholder: "sk-...",
+    needsKey: true,
+    models: [
+      { id: "gpt-4o-mini", label: "GPT-4o Mini — fastest, cheapest" },
+      { id: "gpt-4o", label: "GPT-4o — balanced" },
+      { id: "gpt-4.1-mini", label: "GPT-4.1 Mini" },
+      { id: "gpt-4.1", label: "GPT-4.1" },
+      { id: "gpt-4-turbo", label: "GPT-4 Turbo — legacy" },
+    ],
+  },
+  {
+    id: "gemini",
+    label: "Gemini (Google)",
+    keyPlaceholder: "AIza...",
+    needsKey: true,
+    models: [
+      { id: "gemini-2.0-flash", label: "Gemini 2.0 Flash — fastest" },
+      { id: "gemini-2.0-pro", label: "Gemini 2.0 Pro" },
+      { id: "gemini-1.5-flash", label: "Gemini 1.5 Flash" },
+      { id: "gemini-1.5-pro", label: "Gemini 1.5 Pro" },
+    ],
+  },
+  {
+    id: "ollama",
+    label: "Ollama (local)",
+    keyPlaceholder: "http://localhost:11434",
+    needsKey: false,
+    models: [
+      { id: "llama3.2", label: "Llama 3.2" },
+      { id: "llama3.1", label: "Llama 3.1" },
+      { id: "mistral", label: "Mistral" },
+      { id: "gemma2", label: "Gemma 2" },
+      { id: "phi3", label: "Phi-3" },
+      { id: "qwen2.5", label: "Qwen 2.5" },
+    ],
+  },
 ];
 
-/** Default model */
-export const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
+/** Default provider */
+export const DEFAULT_PROVIDER: ProviderId = "claude";
+
+/** Default model per provider */
+export const DEFAULT_MODELS: Record<ProviderId, string> = {
+  claude: "claude-haiku-4-5-20251001",
+  openai: "gpt-4o-mini",
+  gemini: "gemini-2.0-flash",
+  ollama: "llama3.2",
+};
 
 /** System prompt for Toki Pona translation */
 export const TRANSLATION_PROMPT = `You are a Toki Pona translator. Translate the given text into Toki Pona.

@@ -12,7 +12,23 @@
   </div>
 
   <div class="section">
-    <div class="section-label">API Key</div>
+    <div class="toggle-row">
+      <span class="toggle-label">Translate posts</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="enabledToggle">
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Provider</div>
+    <select class="model-select" id="providerSelect"></select>
+  </div>
+
+  <div class="section" id="keySection">
+    <div class="section-label" id="keyLabel">API Key</div>
     <div class="key-row">
       <input
         type="password"
@@ -27,20 +43,20 @@
     <div class="key-status" id="keyStatus"></div>
   </div>
 
-  <div class="section">
-    <div class="section-label">Model</div>
-    <select class="model-select" id="modelSelect"></select>
-  </div>
-
-  <div class="section">
-    <div class="toggle-row">
-      <span class="toggle-label">Translate posts</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="enabledToggle">
-        <div class="toggle-track"></div>
-        <div class="toggle-thumb"></div>
-      </label>
+  <div class="section hidden" id="ollamaSection">
+    <div class="section-label">Server URL</div>
+    <div class="key-row">
+      <input
+        type="text"
+        class="key-input"
+        id="ollamaUrlInput"
+        placeholder="http://localhost:11434"
+        spellcheck="false"
+        autocomplete="off"
+      >
+      <button class="btn-save" id="saveUrlBtn">Save</button>
     </div>
+    <div class="key-status" id="urlStatus"></div>
   </div>
 
   <div class="section">
@@ -66,19 +82,27 @@
       </svg>
     </summary>
     <div class="advanced-body">
-      <div class="section-label">Target Language</div>
-      <div class="key-row">
-        <input
-          type="text"
-          class="key-input"
-          id="targetLangInput"
-          placeholder="Toki Pona"
-          spellcheck="false"
-          autocomplete="off"
-        >
-        <button class="btn-save" id="applyLangBtn">Apply</button>
+
+      <div class="section">
+        <div class="section-label">Model</div>
+        <select class="model-select" id="modelSelect"></select>
       </div>
-      <div class="lang-status" id="langStatus"></div>
+
+      <div class="section">
+        <div class="section-label">Target Language</div>
+        <div class="key-row">
+          <input
+            type="text"
+            class="key-input"
+            id="targetLangInput"
+            placeholder="Toki Pona"
+            spellcheck="false"
+            autocomplete="off"
+          >
+          <button class="btn-save" id="applyLangBtn">Apply</button>
+        </div>
+        <div class="lang-status" id="langStatus"></div>
+      </div>
     </div>
   </details>
 
