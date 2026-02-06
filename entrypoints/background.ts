@@ -18,7 +18,7 @@ import {
 import { MAX_CONCURRENT_REQUESTS, TRANSLATION_PROMPT } from "../utils/constants";
 
 export default defineBackground(() => {
-  migrateIfNeeded();
+  const migrated = migrateIfNeeded();
 
   let activeRequests = 0;
   const queue: Array<{
@@ -48,6 +48,7 @@ export default defineBackground(() => {
   async function executeTranslation(
     text: string
   ): Promise<{ translation: string } | { error: string }> {
+    await migrated;
     const provider = await selectedProvider.getValue();
     const key = await getActiveKey();
     const model = await getActiveModel();
@@ -77,6 +78,7 @@ export default defineBackground(() => {
   });
 
   onMessage("generatePrompt", async ({ data }) => {
+    await migrated;
     const lang = data.language.trim();
     if (!lang) {
       return { error: "No language specified" };
