@@ -8,9 +8,13 @@ By [Tobias Merkle](https://nuga.theologi.ca).
 
 ## Installation
 
+Download the latest release from the [Releases page](https://github.com/0x70b1a5/toki-eki/releases), or build it yourself:
+
 ```bash
+git clone https://github.com/0x70b1a5/toki-eki
+cd toki-eki
 npm i
 npm run build
 ```
 
-Then load the unpacked extension in Chrome.
+Then load the unpacked extension in Chrome, set your API key, and you're off to the races.
