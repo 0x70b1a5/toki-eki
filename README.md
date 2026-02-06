@@ -1,8 +1,8 @@
-# toki eki
-
-![toki eki icon](https://github.com/0x70b1a5/toki-eki/blob/master/public/icon-128.png?raw=true)
+# ![toki eki icon](https://github.com/0x70b1a5/toki-eki/blob/master/public/icon-48.png?raw=true) toki eki
 
 Translate posts on X, Bluesky, and Mastodon to any language using Claude, ChatGPT, Gemini, or Ollama.
+
+![bluesky example](https://github.com/0x70b1a5/toki-eki/blob/master/bsky.png?raw=true)
 
 By [Tobias Merkle](https://nuga.theologi.ca).
 
