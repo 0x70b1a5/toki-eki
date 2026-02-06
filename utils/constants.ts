@@ -1,8 +1,9 @@
 /** Selector for tweet text elements on X/Twitter */
 export const TWEET_TEXT_SELECTOR = '[data-testid="tweetText"]';
 
-/** Selector for post text elements on Bluesky */
-export const BSKY_POST_TEXT_SELECTOR = '[data-testid="postText"]';
+/** Selector for post text elements on Bluesky (feed + thread views) */
+export const BSKY_POST_TEXT_SELECTOR =
+  '[data-testid="postText"], [data-testid^="postThreadItem"] [data-word-wrap="1"]';
 
 /** Selector for status text elements on Mastodon */
 export const MASTODON_STATUS_TEXT_SELECTOR = ".status__content__text";
