@@ -10,7 +10,7 @@ By [Tobias Merkle](https://nuga.theologi.ca).
 
 1. Download the latest release from the [Releases page](https://github.com/0x70b1a5/toki-eki/releases).
 2. Unzip the folder.
-3. Go to [Manage Extensions](chrome://extensions).
+3. Go to "Manage Extensions" (chrome://extensions).
 4. Enable Developer Mode.
 5. Click "Load unpacked" and select the extension folder.
 6. Set your API key and/or configure Ollama.
