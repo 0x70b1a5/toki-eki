@@ -1,0 +1,23 @@
+{
+  "name": "toki-eki",
+  "version": "0.1.0",
+  "description": "Translate tweets to Toki Pona using Claude",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build && rm -rf dist && cp -r .output/chrome-mv3 dist",
+    "zip": "wxt zip",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@webext-core/messaging": "^1.4.0",
+    "wxt": "^0.19.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0",
+    "jsdom": "^25.0.0"
+  }
+}

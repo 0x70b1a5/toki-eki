@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./popup/style.css">
+</head>
+<body>
+  <div class="header">
+    <div class="title">toki <span>eki</span></div>
+    <div class="subtitle">posts → toki pona</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">API Key</div>
+    <div class="key-row">
+      <input
+        type="password"
+        class="key-input"
+        id="apiKeyInput"
+        placeholder="sk-ant-..."
+        spellcheck="false"
+        autocomplete="off"
+      >
+      <button class="btn-save" id="saveKeyBtn">Save</button>
+    </div>
+    <div class="key-status" id="keyStatus"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Model</div>
+    <select class="model-select" id="modelSelect"></select>
+  </div>
+
+  <div class="section">
+    <div class="toggle-row">
+      <span class="toggle-label">Translate posts</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="enabledToggle">
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Token Usage</div>
+    <div class="tokens-grid">
+      <div class="token-card">
+        <div class="token-card-label">Input</div>
+        <div class="token-card-value" id="tokensIn">0</div>
+      </div>
+      <div class="token-card">
+        <div class="token-card-label">Output</div>
+        <div class="token-card-value" id="tokensOut">0</div>
+      </div>
+    </div>
+    <button class="btn-reset" id="resetBtn">Reset counters</button>
+  </div>
+
+  <details class="advanced-details" id="advancedDetails">
+    <summary class="advanced-summary">
+      <span>Advanced</span>
+      <svg class="advanced-chevron" width="12" height="12" viewBox="0 0 12 12">
+        <path fill="currentColor" d="M2.5 4.5L6 8l3.5-3.5"/>
+      </svg>
+    </summary>
+    <div class="advanced-body">
+      <div class="section-label">Target Language</div>
+      <div class="key-row">
+        <input
+          type="text"
+          class="key-input"
+          id="targetLangInput"
+          placeholder="Toki Pona"
+          spellcheck="false"
+          autocomplete="off"
+        >
+        <button class="btn-save" id="applyLangBtn">Apply</button>
+      </div>
+      <div class="lang-status" id="langStatus"></div>
+    </div>
+  </details>
+
+  <div class="footer">
+    <a href="https://tokipona.org" target="_blank" rel="noopener">toki pona li pona</a>
+  </div>
+
+  <script type="module" src="./popup/main.ts"></script>
+</body>
+</html>

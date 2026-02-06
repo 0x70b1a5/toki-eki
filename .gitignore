@@ -1,0 +1,11 @@
+dist
+example_*
+package-lock.json
+.env
+.claude
+.output
+.wxt
+node_modules
+__tests__
+.DS_Store
+*/**/.DS_Store
