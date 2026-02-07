@@ -1,7 +1,7 @@
 {
   "name": "toki-eki",
   "version": "0.1.0",
-  "description": "Translate tweets to Toki Pona using Claude",
+  "description": "Translate posts on X, Bluesky, Mastodon, and Hacker News to any language using Claude, ChatGPT, Gemini, or Ollama",
   "private": true,
   "type": "module",
   "scripts": {

@@ -35,6 +35,28 @@ export function markProcessed(el: Element): void {
   el.setAttribute(PROCESSED_ATTR, "true");
 }
 
+/**
+ * Returns a promise that resolves when the element is within
+ * one viewport height of being visible. This prevents translating
+ * offscreen posts before visible ones.
+ */
+export function waitUntilNearViewport(el: Element): Promise<void> {
+  return new Promise((resolve) => {
+    // rootMargin extends the viewport by 100% in each direction
+    // so we trigger when the element is within one screen height
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          observer.disconnect();
+          resolve();
+        }
+      },
+      { rootMargin: "100%" }
+    );
+    observer.observe(el);
+  });
+}
+
 /** Find all unprocessed elements matching a selector */
 export function findUnprocessed(
   selector: string,

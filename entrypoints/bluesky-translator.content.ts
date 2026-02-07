@@ -1,6 +1,6 @@
 import { sendMessage } from "../utils/messaging";
 import { enabled, targetLanguage } from "../utils/storage";
-import { markProcessed } from "../utils/detect";
+import { markProcessed, waitUntilNearViewport } from "../utils/detect";
 import {
   expandPost,
   extractPostText,
@@ -25,6 +25,9 @@ export default defineContentScript({
 
     async function processPost(postEl: Element) {
       markProcessed(postEl);
+
+      // Wait until near viewport to avoid translating offscreen posts first
+      await waitUntilNearViewport(postEl);
 
       await expandPost(postEl);
 
@@ -64,7 +67,8 @@ export default defineContentScript({
           }
         },
         referenceNotice,
-        currentLang
+        currentLang,
+        postEl
       );
 
       const toggleButton = notice.querySelector(

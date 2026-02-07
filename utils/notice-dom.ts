@@ -1,4 +1,4 @@
-import { FALLBACK_NOTICE_STYLES, TRANSLATE_SVG } from "./constants";
+import { FALLBACK_NOTICE_STYLES } from "./constants";
 
 /**
  * Try to find an existing X "Translated from" notice on the page
@@ -24,7 +24,8 @@ export function findExistingNotice(): Element | null {
 export function buildNoticeDiv(
   onToggle: () => void,
   referenceNotice?: Element | null,
-  targetLanguage: string = "toki pona"
+  targetLanguage: string = "toki pona",
+  textElement?: Element | null
 ): HTMLElement {
   const container = document.createElement("div");
   container.setAttribute("dir", "ltr");
@@ -42,10 +43,15 @@ export function buildNoticeDiv(
     Object.assign(container.style, FALLBACK_NOTICE_STYLES.container);
   }
 
-  // SVG icon
-  const iconSpan = document.createElement("span");
-  iconSpan.innerHTML = TRANSLATE_SVG;
-  container.appendChild(iconSpan);
+  // Ensure notice font-size is at most as large as the translated text
+  if (textElement) {
+    const textFontSize = window.getComputedStyle(textElement).fontSize;
+    const textSizePx = parseFloat(textFontSize);
+    const containerFontSize = parseFloat(container.style.fontSize || "13");
+    if (containerFontSize > textSizePx) {
+      container.style.fontSize = textFontSize;
+    }
+  }
 
   // Label
   const label = document.createElement("span");

@@ -2,11 +2,11 @@ import { sendMessage } from "../utils/messaging";
 import { enabled, targetLanguage } from "../utils/storage";
 import { markProcessed, waitUntilNearViewport } from "../utils/detect";
 import {
-  expandTweet,
-  extractTweetText,
-  findUnprocessedTweets,
-  observeTweets,
-} from "../utils/tweet-detector";
+  expandComment,
+  extractCommentText,
+  findUnprocessedComments,
+  observeComments,
+} from "../utils/hn-detector";
 import {
   buildNoticeDiv,
   insertNotice,
@@ -14,7 +14,7 @@ import {
 } from "../utils/notice-dom";
 
 export default defineContentScript({
-  matches: ["*://*.x.com/*", "*://*.twitter.com/*"],
+  matches: ["*://news.ycombinator.com/*"],
   runAt: "document_idle",
 
   main() {
@@ -23,18 +23,18 @@ export default defineContentScript({
     targetLanguage.getValue().then((v) => (lang = v));
     targetLanguage.watch((v) => (lang = v));
 
-    async function processTweet(tweetEl: Element) {
-      markProcessed(tweetEl);
+    async function processComment(commentEl: Element) {
+      markProcessed(commentEl);
 
       // Wait until near viewport to avoid translating offscreen posts first
-      await waitUntilNearViewport(tweetEl);
+      await waitUntilNearViewport(commentEl);
 
-      await expandTweet(tweetEl);
+      await expandComment(commentEl);
 
-      const text = extractTweetText(tweetEl);
+      const text = extractCommentText(commentEl);
       if (!text.trim()) return;
 
-      const originalHTML = tweetEl.innerHTML;
+      const originalHTML = commentEl.innerHTML;
 
       const result = await sendMessage("translateToTokiPona", { text });
 
@@ -44,7 +44,7 @@ export default defineContentScript({
       }
 
       const translation = result.translation;
-      tweetEl.textContent = translation;
+      commentEl.textContent = translation;
 
       let showingOriginal = false;
 
@@ -57,30 +57,30 @@ export default defineContentScript({
         () => {
           showingOriginal = !showingOriginal;
           if (showingOriginal) {
-            tweetEl.innerHTML = originalHTML;
+            commentEl.innerHTML = originalHTML;
             toggleButton.textContent = `Show ${currentLang}`;
             toggleButton.setAttribute("aria-label", `Show ${currentLang}`);
           } else {
-            tweetEl.textContent = translation;
+            commentEl.textContent = translation;
             toggleButton.textContent = "Show original";
             toggleButton.setAttribute("aria-label", "Show original");
           }
         },
         referenceNotice,
         currentLang,
-        tweetEl
+        commentEl
       );
 
       const toggleButton = notice.querySelector(
         "[data-toki-eki-toggle]"
       ) as HTMLButtonElement;
 
-      insertNotice(notice, tweetEl);
+      insertNotice(notice, commentEl);
     }
 
-    function handleNewTweets(tweets: Element[]) {
-      for (const tweet of tweets) {
-        processTweet(tweet);
+    function handleNewComments(comments: Element[]) {
+      for (const comment of comments) {
+        processComment(comment);
       }
     }
 
@@ -88,15 +88,15 @@ export default defineContentScript({
       const isEnabled = await enabled.getValue();
       if (!isEnabled) return;
 
-      const initial = findUnprocessedTweets();
+      const initial = findUnprocessedComments();
       if (initial.length > 0) {
-        handleNewTweets(initial);
+        handleNewComments(initial);
       }
 
-      observeTweets(async (tweets) => {
+      observeComments(async (comments) => {
         const isEnabled = await enabled.getValue();
         if (!isEnabled) return;
-        handleNewTweets(tweets);
+        handleNewComments(comments);
       });
     }
 
@@ -104,9 +104,9 @@ export default defineContentScript({
 
     enabled.watch((isEnabled) => {
       if (isEnabled) {
-        const tweets = findUnprocessedTweets();
-        if (tweets.length > 0) {
-          handleNewTweets(tweets);
+        const comments = findUnprocessedComments();
+        if (comments.length > 0) {
+          handleNewComments(comments);
         }
       }
     });
