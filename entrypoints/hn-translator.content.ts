@@ -7,34 +7,111 @@ import {
   findUnprocessedComments,
   observeComments,
 } from "../utils/hn-detector";
-import {
-  buildNoticeDiv,
-  insertNotice,
-  findExistingNotice,
-} from "../utils/notice-dom";
+
+/** HN-native notice styles */
+const HN_NOTICE_STYLES = "display: inline-flex; gap: 4px; margin-left: 4px; margin-right: 4px;";
+const HN_COMMENT_NOTICE_STYLES = "display: inline-flex; gap: 4px; margin-right: 4px;";
+
+/**
+ * Create a styled button for HN notices with hover underline.
+ */
+function createHNButton(initialText: string): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = initialText;
+  button.setAttribute("aria-label", initialText);
+  button.setAttribute("data-toki-eki-toggle", "true");
+  button.style.cssText =
+    "background: none; border: none; color: #828282; cursor: pointer; font-size: inherit; padding: 0;";
+  button.addEventListener("mouseenter", () => {
+    button.style.textDecoration = "underline";
+  });
+  button.addEventListener("mouseleave", () => {
+    button.style.textDecoration = "none";
+  });
+  return button;
+}
+
+/**
+ * Build an HN-native notice for a title (.titleline > a).
+ * Returns a <span> with .comhead.sitebit classes.
+ */
+function buildTitleNotice(onToggle: () => void): HTMLElement {
+  const container = document.createElement("span");
+  container.className = "comhead sitebit";
+  container.style.cssText = HN_NOTICE_STYLES;
+  container.setAttribute("data-toki-eki-notice", "true");
+
+  const button = createHNButton("show original");
+  button.addEventListener("click", onToggle);
+  container.appendChild(button);
+
+  return container;
+}
+
+/**
+ * Build an HN-native notice for a comment (.commtext).
+ * Returns a <span> to be inserted into span.navs with a pipe separator.
+ */
+function buildCommentNotice(onToggle: () => void): HTMLElement {
+  const container = document.createElement("span");
+  container.setAttribute("data-toki-eki-notice", "true");
+  container.style.cssText = HN_COMMENT_NOTICE_STYLES;
+
+  const button = createHNButton("show original");
+  button.addEventListener("click", onToggle);
+  container.appendChild(button);
+
+  return container;
+}
+
+/**
+ * Insert notice for a title - after the title link within .titleline
+ */
+function insertTitleNotice(notice: HTMLElement, titleEl: Element): void {
+  titleEl.after(notice);
+}
+
+/**
+ * Insert notice for a comment - into span.navs before a.togg.clicky
+ */
+function insertCommentNotice(notice: HTMLElement, commentEl: Element): void {
+  const tdDefault = commentEl.closest("td.default");
+  if (tdDefault) {
+    const navs = tdDefault.querySelector("span.navs");
+    const togg = navs?.querySelector("a.togg.clicky");
+    if (navs && togg) {
+      const separator = document.createTextNode(" | ");
+      navs.insertBefore(separator, togg);
+      navs.insertBefore(notice, togg);
+      return;
+    }
+  }
+  // Fallback: insert before the comment
+  commentEl.parentElement?.insertBefore(notice, commentEl);
+}
 
 export default defineContentScript({
   matches: ["*://news.ycombinator.com/*"],
   runAt: "document_idle",
 
   main() {
-    let referenceNotice: Element | null = null;
     let lang = "toki pona";
     targetLanguage.getValue().then((v) => (lang = v));
     targetLanguage.watch((v) => (lang = v));
 
-    async function processComment(commentEl: Element) {
-      markProcessed(commentEl);
+    async function processElement(el: Element) {
+      markProcessed(el);
 
       // Wait until near viewport to avoid translating offscreen posts first
-      await waitUntilNearViewport(commentEl);
+      await waitUntilNearViewport(el);
 
-      await expandComment(commentEl);
+      await expandComment(el);
 
-      const text = extractCommentText(commentEl);
+      const text = extractCommentText(el);
       if (!text.trim()) return;
 
-      const originalHTML = commentEl.innerHTML;
+      const originalHTML = el.innerHTML;
 
       const result = await sendMessage("translateToTokiPona", { text });
 
@@ -44,43 +121,54 @@ export default defineContentScript({
       }
 
       const translation = result.translation;
-      commentEl.textContent = translation;
+      el.textContent = translation;
 
       let showingOriginal = false;
-
-      if (!referenceNotice) {
-        referenceNotice = findExistingNotice();
-      }
-
       const currentLang = lang;
-      const notice = buildNoticeDiv(
-        () => {
-          showingOriginal = !showingOriginal;
-          if (showingOriginal) {
-            commentEl.innerHTML = originalHTML;
-            toggleButton.textContent = `Show ${currentLang}`;
-            toggleButton.setAttribute("aria-label", `Show ${currentLang}`);
-          } else {
-            commentEl.textContent = translation;
-            toggleButton.textContent = "Show original";
-            toggleButton.setAttribute("aria-label", "Show original");
-          }
-        },
-        referenceNotice,
-        currentLang,
-        commentEl
-      );
+
+      // Determine if this is a title or comment
+      const isTitle = el.matches(".titleline > a");
+
+      const notice = isTitle
+        ? buildTitleNotice(() => {
+            showingOriginal = !showingOriginal;
+            if (showingOriginal) {
+              el.innerHTML = originalHTML;
+              toggleButton.textContent = `show ${currentLang}`;
+              toggleButton.setAttribute("aria-label", `show ${currentLang}`);
+            } else {
+              el.textContent = translation;
+              toggleButton.textContent = "show original";
+              toggleButton.setAttribute("aria-label", "show original");
+            }
+          })
+        : buildCommentNotice(() => {
+            showingOriginal = !showingOriginal;
+            if (showingOriginal) {
+              el.innerHTML = originalHTML;
+              toggleButton.textContent = `show ${currentLang}`;
+              toggleButton.setAttribute("aria-label", `show ${currentLang}`);
+            } else {
+              el.textContent = translation;
+              toggleButton.textContent = "show original";
+              toggleButton.setAttribute("aria-label", "show original");
+            }
+          });
 
       const toggleButton = notice.querySelector(
         "[data-toki-eki-toggle]"
       ) as HTMLButtonElement;
 
-      insertNotice(notice, commentEl);
+      if (isTitle) {
+        insertTitleNotice(notice, el);
+      } else {
+        insertCommentNotice(notice, el);
+      }
     }
 
-    function handleNewComments(comments: Element[]) {
-      for (const comment of comments) {
-        processComment(comment);
+    function handleNewElements(elements: Element[]) {
+      for (const el of elements) {
+        processElement(el);
       }
     }
 
@@ -90,13 +178,13 @@ export default defineContentScript({
 
       const initial = findUnprocessedComments();
       if (initial.length > 0) {
-        handleNewComments(initial);
+        handleNewElements(initial);
       }
 
-      observeComments(async (comments) => {
+      observeComments(async (elements) => {
         const isEnabled = await enabled.getValue();
         if (!isEnabled) return;
-        handleNewComments(comments);
+        handleNewElements(elements);
       });
     }
 
@@ -104,9 +192,9 @@ export default defineContentScript({
 
     enabled.watch((isEnabled) => {
       if (isEnabled) {
-        const comments = findUnprocessedComments();
-        if (comments.length > 0) {
-          handleNewComments(comments);
+        const elements = findUnprocessedComments();
+        if (elements.length > 0) {
+          handleNewElements(elements);
         }
       }
     });
