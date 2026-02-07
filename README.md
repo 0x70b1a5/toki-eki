@@ -6,6 +6,8 @@
 
 Translate posts on X, Bluesky, Mastodon, and Hacker News to any language using Claude, ChatGPT, Gemini, or Ollama.
 
+⚠️ **NOTE**: This can get expensive.  **Better models provide better translations,** so you might feel inclined to scale up your spending for a better experience.  I'm sorry that things are this way!
+
 | Bluesky | Hacker News |
 |:-------:|:-----------:|
 | ![bluesky example](https://github.com/0x70b1a5/toki-eki/blob/master/bsky.png?raw=true) | ![hn example](https://github.com/0x70b1a5/toki-eki/blob/master/hn.png?raw=true) |
@@ -16,7 +18,7 @@ By [Tobias Merkle](https://nuga.theologi.ca).
 
 ## Why?
 
-I wanted a way to make my social media time productive for language practice. Instead of doom-scrolling, every post becomes an opportunity to read in your target language.
+I wanted a way to make my social media time productive for language practice.  Instead of doom-scrolling, every post becomes an opportunity to read in your target language.
 
 ## Installation
 
