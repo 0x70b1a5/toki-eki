@@ -8,9 +8,9 @@ Translate posts on X, Bluesky, Mastodon, and Hacker News to any language using C
 
 ⚠️ **NOTE**: This can get expensive.  **Better models provide better translations,** so you might feel inclined to scale up your spending for a better experience.  I'm sorry that things are this way!
 
-| Bluesky | Hacker News |
-|:-------:|:-----------:|
-| ![bluesky example](https://github.com/0x70b1a5/toki-eki/blob/master/bsky.png?raw=true) | ![hn example](https://github.com/0x70b1a5/toki-eki/blob/master/hn.png?raw=true) |
+| Bluesky | Hacker News | Mastodon |
+|:-------:|:-----------:|:--------:|
+| ![bluesky example](https://github.com/0x70b1a5/toki-eki/blob/master/bsky.png?raw=true) | ![hn example](https://github.com/0x70b1a5/toki-eki/blob/master/hn.png?raw=true) | ![mastodon example](https://github.com/0x70b1a5/toki-eki/blob/master/mastodon.png?raw=true) 
 
 **Supports:** ![Claude](https://img.shields.io/badge/Claude-Anthropic-D97757) ![ChatGPT](https://img.shields.io/badge/ChatGPT-OpenAI-74AA9C) ![Gemini](https://img.shields.io/badge/Gemini-Google-4285F4) ![Ollama](https://img.shields.io/badge/Ollama-Local-7C3AED)
 
